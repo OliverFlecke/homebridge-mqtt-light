@@ -1,6 +1,9 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
+import { AsyncMqttClient, connectAsync } from 'async-mqtt';
+
+const url = 'wss://paletten.oliverflecke.me:9001';
 
 /**
  * Platform Accessory
@@ -9,6 +12,7 @@ import { ExampleHomebridgePlatform } from './platform';
  */
 export class ExamplePlatformAccessory {
   private service: Service;
+  private mqtt?: AsyncMqttClient;
 
   /**
    * These are just used to create a working example
@@ -24,6 +28,7 @@ export class ExamplePlatformAccessory {
     private readonly accessory: PlatformAccessory,
   ) {
 
+    this.setupMqttClient();
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'OliverFlecke')
@@ -51,6 +56,12 @@ export class ExamplePlatformAccessory {
       .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
   }
 
+  async setupMqttClient() {
+    this.mqtt = await connectAsync(url, undefined, false);
+
+    this.mqtt?.publish('test', 'this is a test', {});
+  }
+
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
@@ -76,7 +87,6 @@ export class ExamplePlatformAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async getOn(): Promise<CharacteristicValue> {
-    // implement your own code to check if the device is on
     const isOn = this.exampleStates.On;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
@@ -92,10 +102,10 @@ export class ExamplePlatformAccessory {
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
   async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
     this.exampleStates.Brightness = value as number;
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    this.mqtt?.publish('alliancevej/light/', this.exampleStates.Brightness.toString(), {});
   }
 
 }

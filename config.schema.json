@@ -1,5 +1,5 @@
 {
-	"pluginAlias": "Homebridge MQTT light",
+	"pluginAlias": "Homebridge-MQTT-light",
 	"pluginType": "platform",
 	"singular": true,
 	"schema": {
