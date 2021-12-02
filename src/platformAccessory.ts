@@ -1,7 +1,6 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-
-import { ExampleHomebridgePlatform } from './platform';
 import { AsyncMqttClient, connectAsync } from 'async-mqtt';
+import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
+import { ExampleHomebridgePlatform } from './platform';
 
 const url = 'wss://paletten.oliverflecke.me:9001';
 
@@ -27,33 +26,46 @@ export class ExamplePlatformAccessory {
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-
     this.setupMqttClient();
     // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'OliverFlecke')
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(
+        this.platform.Characteristic.Manufacturer,
+        'OliverFlecke',
+      )
       .setCharacteristic(this.platform.Characteristic.Model, 'MQTT-light')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        'Default-Serial',
+      );
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.service =
+      this.accessory.getService(this.platform.Service.Lightbulb) ||
+      this.accessory.addService(this.platform.Service.Lightbulb);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
+    this.service.setCharacteristic(
+      this.platform.Characteristic.Name,
+      accessory.context.device.exampleDisplayName,
+    );
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.On)
+      .onSet(this.setOn.bind(this)) // SET - bind to the `setOn` method below
+      .onGet(this.getOn.bind(this)); // GET - bind to the `getOn` method below
 
     // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.Brightness)
+      .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
   }
 
   async setupMqttClient() {
@@ -71,7 +83,11 @@ export class ExamplePlatformAccessory {
     this.state.On = value as boolean;
 
     this.platform.log.debug('Set Characteristic On ->', value);
-    this.mqtt?.publish('alliancevej/light/', this.state.On ? this.state.Brightness.toString() : '0', {});
+    this.mqtt?.publish(
+      'alliancevej/light/',
+      this.state.On ? this.state.Brightness.toString() : '0',
+      {},
+    );
   }
 
   /**
@@ -106,7 +122,10 @@ export class ExamplePlatformAccessory {
     this.state.Brightness = value as number;
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
-    this.mqtt?.publish('alliancevej/light/', this.state.Brightness.toString(), {});
+    this.mqtt?.publish(
+      'alliancevej/light/',
+      this.state.Brightness.toString(),
+      {},
+    );
   }
-
 }
