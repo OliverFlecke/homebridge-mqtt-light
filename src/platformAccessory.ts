@@ -18,7 +18,7 @@ export class ExamplePlatformAccessory {
    * These are just used to create a working example
    * You should implement your own code to track the state of your accessory
    */
-  private exampleStates = {
+  private state = {
     On: false,
     Brightness: 100,
   };
@@ -68,9 +68,10 @@ export class ExamplePlatformAccessory {
    */
   async setOn(value: CharacteristicValue) {
     // implement your own code to turn your device on/off
-    this.exampleStates.On = value as boolean;
+    this.state.On = value as boolean;
 
     this.platform.log.debug('Set Characteristic On ->', value);
+    this.mqtt?.publish('alliancevej/light/', this.state.On ? this.state.Brightness.toString() : '0', {});
   }
 
   /**
@@ -87,7 +88,7 @@ export class ExamplePlatformAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async getOn(): Promise<CharacteristicValue> {
-    const isOn = this.exampleStates.On;
+    const isOn = this.state.On;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
 
@@ -102,10 +103,10 @@ export class ExamplePlatformAccessory {
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
   async setBrightness(value: CharacteristicValue) {
-    this.exampleStates.Brightness = value as number;
+    this.state.Brightness = value as number;
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
-    this.mqtt?.publish('alliancevej/light/', this.exampleStates.Brightness.toString(), {});
+    this.mqtt?.publish('alliancevej/light/', this.state.Brightness.toString(), {});
   }
 
 }

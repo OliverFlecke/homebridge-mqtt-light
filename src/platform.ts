@@ -63,9 +63,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       },
     ];
 
-    // loop over the discovered devices and register each one if it has not already been registered
     for (const device of exampleDevices) {
-
       const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
 
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
